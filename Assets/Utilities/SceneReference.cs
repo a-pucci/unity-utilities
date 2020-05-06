@@ -8,7 +8,7 @@ using EditorUtility = UnityEditor.EditorUtility;
 using UnityEditor;
 #endif
 
-namespace Tools {
+namespace Utilities {
 // Author: JohannesMP (2018-08-12)
 //
 // A wrapper that provides the means to safely serialize Scene Asset References.

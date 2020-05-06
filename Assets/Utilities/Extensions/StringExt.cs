@@ -1,4 +1,4 @@
-namespace Tools.Extensions {
+namespace Utilities.Extensions {
 	public static class StringExt {
 		public static string UppercaseFirst(this string s) {
 			if (string.IsNullOrEmpty(s)) {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Tools {
+namespace Utilities {
 	public static class ArrayUtility {
 		public static void Add<T>(ref T[] array, T item) {
 			Array.Resize(ref array, array.Length + 1);

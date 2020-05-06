@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Tools.Patterns {
+namespace Utilities.Patterns {
 	public class GameObjectPools : MonoBehaviour {
 		[Serializable]
 		public struct PoolStruct {

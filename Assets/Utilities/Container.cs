@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Tools {
+namespace Utilities {
 	public class Container<T> : ScriptableObject where T : ScriptableObject {
 		protected T[] list;
 		public T[] List => list;

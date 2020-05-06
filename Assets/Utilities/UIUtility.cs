@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
-namespace Tools {
+namespace Utilities {
 	public static class UIUtility {
 		#region Elements Pool
 

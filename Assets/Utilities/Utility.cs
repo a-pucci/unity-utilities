@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace Tools {
+namespace Utilities {
 	public static class Utility {
 
 		public static T[] GetAllInstances<T>() where T : ScriptableObject {

@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Tools {
+namespace Utilities.Editor {
 	public static class EditorUtility {
 		public static Texture2D CopyTexture(Sprite sprite) {
 			var newTexture = new Texture2D((int)sprite.textureRect.size.x, (int)sprite.textureRect.size.y, TextureFormat.RGBA32, false) {filterMode = FilterMode.Point, alphaIsTransparency = true};

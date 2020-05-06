@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Tools.Patterns {
+namespace Utilities.Patterns {
 	public abstract class Entity : MonoBehaviour {
 		public readonly Dictionary<Type, EntityComponent> components = new Dictionary<Type, EntityComponent>();
 

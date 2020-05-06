@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Tools.Extensions {
+namespace Utilities.Extensions {
 	public static class GameObjectExt {
 		public static T AddComponentToParent<T>(this Component obj) where T : Component {
 			return obj.transform.parent.gameObject.AddComponent<T>();

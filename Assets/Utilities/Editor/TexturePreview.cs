@@ -2,7 +2,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Tools {
+namespace Utilities.Editor {
 	[Serializable]
 	public class TexturePreview {
 		public float Width => 100 * zoom;

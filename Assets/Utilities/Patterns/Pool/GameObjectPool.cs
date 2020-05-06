@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Tools.Patterns {
+namespace Utilities.Patterns {
 	public class GameObjectPool {
 		private Queue<GameObject> Queue { get; } = new Queue<GameObject>();
 		private readonly GameObject prefab;

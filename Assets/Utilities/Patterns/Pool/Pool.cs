@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Tools.Patterns {
+namespace Utilities.Patterns {
 	public class Pool<T> where T : MonoBehaviour {
 		public Queue<T> Queue { get; } = new Queue<T>();
 		private T prefab;

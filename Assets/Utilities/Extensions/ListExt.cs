@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Tools.Extensions {
+namespace Utilities.Extensions {
 	public static class ListExt {	public static T GetRandomElement<T>(this List<T> list) {
 			return list[Random.Range(0, list.Count)];
 		}
