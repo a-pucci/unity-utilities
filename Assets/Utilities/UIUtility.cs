@@ -8,19 +8,7 @@ using Object = UnityEngine.Object;
 namespace Utilities {
 	public static class UIUtility {
 		#region Elements Pool
-
-		public static void ClearElements(Transform parent) {
-			if (parent != null) {
-				foreach (Transform child in parent) {
-					var button = child.GetComponent<Button>();
-					if (button) {
-						button.onClick.RemoveAllListeners();
-					}
-					child.gameObject.SetActive(false);
-				}
-			}
-		}
-
+		
 		public static GameObject AddElement(GameObject original, Transform parent, Action<GameObject> set = null, Action onClick = null) {
 			GameObject newObject = null;
 			foreach (Transform child in parent) {
@@ -70,32 +58,44 @@ namespace Utilities {
 			}
 			return newObject;
 		}
-
+		
+		public static void ClearElements(Transform parent) {
+			if (parent != null) {
+				foreach (Transform child in parent) {
+					var button = child.GetComponent<Button>();
+					if (button) {
+						button.onClick.RemoveAllListeners();
+					}
+					child.gameObject.SetActive(false);
+				}
+			}
+		}
+		
 		#endregion
 
 		#region Navigation
 
-		public static void SetVerticalLoopNavigation<T>(IReadOnlyList<T> list) where T : MonoBehaviour {
+		public static void SetVerticalNavigation<T>(IReadOnlyList<T> list, bool loop) where T : MonoBehaviour {
 			List<Button> buttons = list.Select(x => x.GetComponent<Button>()).ToList();
 			for (int i = 0; i < buttons.Count(); i++) {
 				var nav = new Navigation
 				{
 					mode = Navigation.Mode.Explicit,
-					selectOnUp = i == 0 ? buttons[buttons.Count - 1] : buttons[i - 1],
-					selectOnDown = i == buttons.Count - 1 ? buttons[0] : buttons[i + 1]
+					selectOnUp = i == 0 ? (loop ? buttons[buttons.Count - 1] : null) : buttons[i - 1],
+					selectOnDown = i == buttons.Count - 1 ? (loop ? buttons[0] : null) : buttons[i + 1]
 				};
 				buttons[i].navigation = nav;
 			}
 		}
 
-		public static void SetHorizontalLoopNavigation<T>(IReadOnlyList<T> list) where T : MonoBehaviour {
+		public static void SetHorizontalNavigation<T>(IReadOnlyList<T> list, bool loop) where T : MonoBehaviour {
 			List<Button> buttons = list.Select(x => x.GetComponent<Button>()).ToList();
 			for (int i = 0; i < buttons.Count(); i++) {
 				var nav = new Navigation
 				{
 					mode = Navigation.Mode.Explicit,
-					selectOnLeft = i == 0 ? buttons[buttons.Count - 1] : buttons[i - 1],
-					selectOnRight = i == buttons.Count - 1 ? buttons[0] : buttons[i + 1]
+					selectOnLeft = i == 0 ? (loop ? buttons[buttons.Count - 1] : null) : buttons[i - 1],
+					selectOnRight = i == buttons.Count - 1 ? (loop ? buttons[0] : null) : buttons[i + 1]
 				};
 				buttons[i].navigation = nav;
 			}
