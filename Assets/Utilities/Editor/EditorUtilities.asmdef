@@ -1,3 +1,14 @@
-﻿{
-	"name": "EditorUtilities"
+{
+    "name": "EditorUtilities",
+    "references": [
+        "Utilities"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
 }

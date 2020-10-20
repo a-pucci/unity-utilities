@@ -21,5 +21,24 @@ namespace Utilities {
 			list.Remove(item);
 			array = list.ToArray();
 		}
+
+		public static bool FindAndRemove<T>(ref T[] array, Predicate<T> match) {
+			var list = new List<T>(array);
+			T element = list.Find(match);
+			if (element != null && list.Remove(element)) {
+				array = list.ToArray();
+				return true;
+			}
+			return false;
+		}
+
+		public static bool FindAndRemove<T>(ref T[] array, T element) {
+			var list = new List<T>(array);
+			if (list.Remove(element)) {
+				array = list.ToArray();
+				return true;
+			}
+			return false;
+		}
 	}
 }

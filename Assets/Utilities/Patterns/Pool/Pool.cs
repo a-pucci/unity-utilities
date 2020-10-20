@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Utilities.Patterns {
@@ -24,7 +25,7 @@ namespace Utilities.Patterns {
 			return Queue.Dequeue();
 		}
 
-		private void AddToPool(int count, Transform parent = null) {
+		public void AddToPool(int count, Transform parent = null) {
 			for (int i = 0; i < count; i++) {
 				T obj = Object.Instantiate(prefab, parent);
 				obj.gameObject.SetActive(false);
@@ -32,7 +33,7 @@ namespace Utilities.Patterns {
 			}
 		}
 	
-		private void AddToPool(T[] prefabs, int count, Transform parent = null) {
+		public void AddToPool(T[] prefabs, int count, Transform parent = null) {
 			for (int i = 0; i < count; i++) {
 				T obj = Object.Instantiate(prefabs[Random.Range(0, prefabs.Length)], parent);
 				obj.gameObject.SetActive(false);

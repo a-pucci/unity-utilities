@@ -12,10 +12,8 @@ namespace Utilities.Patterns {
 		}
 
 		public static GameObjectPools Instance { get; private set; }
-		
-#pragma warning disable 0649
-		[SerializeField] private PoolStruct[] objects;
-#pragma warning restore 0649
+
+		[SerializeField] private PoolStruct[] objects = default;
 
 		private Dictionary<string, GameObjectPool> pools;
 		private Transform parent;
