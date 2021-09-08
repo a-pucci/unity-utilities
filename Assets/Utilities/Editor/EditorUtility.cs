@@ -49,11 +49,20 @@ namespace Utilities.Editor {
 		return newTexture;
 	}
 	
-	public static Rect DrawBorders(Rect rect, int borderWidth, Color color)
-	{		
+	public static void DrawVerticalLine(float x, float startY, float endY, int lineWidth, Color color) {
+		var lineRect = new Rect(x, startY,lineWidth, endY-startY);
+		EditorGUI.DrawRect(lineRect, color);
+	}
+	
+	public static void DrawHorizontalLine(float y, float startX, float endX, int lineHeight, Color color) {
+		var lineRect = new Rect(startX, y, endX-startX, lineHeight);
+		EditorGUI.DrawRect(lineRect, color);
+	}
+	
+	public static Rect DrawOuterBorders(Rect rect, int borderWidth, Color color) {		
 		var newRect = new Rect(rect.x - borderWidth, rect.y - borderWidth , rect.width + borderWidth*2, rect.height + borderWidth*2);
 		
-		if (Event.current.type != EventType.Repaint)
+		if (Event.current?.type != EventType.Repaint)
 			return newRect;
 
 		if (borderWidth > 0) {
@@ -82,6 +91,34 @@ namespace Utilities.Editor {
 		return newRect;
 	}
 	
+	public static Rect DrawInnerBorders(Rect rect, int borderWidth, Color color) {		
+		var newRect = new Rect(rect.x + borderWidth, rect.y + borderWidth , rect.width - borderWidth*2, rect.height - borderWidth*2);
+		if (Event.current?.type != EventType.Repaint)
+			return newRect;
+
+		if (borderWidth > 0)
+		{
+			Rect rect1 = rect;
+			rect1.width = borderWidth;
+			EditorGUI.DrawRect(rect1, color);
+			
+			rect1 = rect;
+			rect1.height = borderWidth;
+			EditorGUI.DrawRect(rect1, color);
+			
+			rect1 = rect;
+			rect1.x += rect.width - borderWidth;
+			rect1.width = borderWidth;
+			EditorGUI.DrawRect(rect1, color);
+			
+			rect1 = rect;
+			rect1.y += rect.height - borderWidth;
+			rect1.height = borderWidth;
+			EditorGUI.DrawRect(rect1, color);
+		}
+		return newRect;
+	}
+	
 	public static void DrawTitle(string label, int size, int space, bool drawLine = true) {
 		GUILayout.Space(space);
 		var style = new GUIStyle {fontSize = size, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter};
@@ -91,9 +128,15 @@ namespace Utilities.Editor {
 		if (drawLine) {
 			float width = r.width;
 			var lineRect = new Rect(r.center.x - width/2, labelRect.y+size+(space/2), width, 0);
-			DrawBorders(lineRect, 1, Color.black);
+			DrawOuterBorders(lineRect, 1, Color.black);
 		}
 		GUILayout.Space(space);
+	}
+
+	public static void DrawBox(Vector2 size, Color color, float space) {
+		Rect r = EditorGUILayout.GetControlRect(false, size.y);
+		var rect = new Rect(r.x + space, r.y+1, size.x, size.y);
+		EditorGUI.DrawRect(rect, color);
 	}
 
 	}

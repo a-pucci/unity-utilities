@@ -7,10 +7,8 @@ namespace Utilities {
 
 #if UNITY_EDITOR
 
-	protected virtual void GetAll() {
-		list = Utility.GetAllInstances<T>();
-	}
-	
+	protected virtual void GetAll() => list = Utility.GetAllInstances<T>();
+
 #endif
 	}
 }

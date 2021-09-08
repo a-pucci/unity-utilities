@@ -11,8 +11,21 @@ namespace Utilities.Editor {
 			Right,
 			Center
 		}
-		public float Width => 100 * zoom;
-		public float Height => 100 * zoom;
+		
+		private float width = 100;
+		private float height = 100;
+		
+		public float Width => width * zoom;
+		public float Height => height * zoom;
+		
+		public Vector2 Size {
+			get => new Vector2(width, height);
+			set {
+				width = value.x;
+				height = value.y;
+			}
+		}
+		
 		public Texture2D texture;
 		private float zoom;
 		private Color backgroundColor;
@@ -21,7 +34,9 @@ namespace Utilities.Editor {
 		public Anchor anchor;
 		public event Action<Vector2Int> Clicked;
 		public event Action<Vector2> Scrolled;
-
+		public event Action<Vector2Int> DragStart;
+		public event Action DragEnd;
+		
 		public TexturePreview(Anchor anchor, string label = null) {
 			texture = null;
 			this.anchor = anchor;
@@ -53,33 +68,23 @@ namespace Utilities.Editor {
 			zoom = 1;
 		}
 
-		public void ChangeTexture(ref Texture2D texture) {
-			this.texture = texture;
-		}
+		public void ChangeTexture(ref Texture2D newTexture) => texture = newTexture;
+		
+		public void ChangeTexture(Sprite sprite) => texture = EditorUtility.CopyTexture(sprite);
+		
+		public void ChangeZoom(float newZoom) => zoom = newZoom;
+		
+		public void ChangeBackgroundColor(Color color) => backgroundColor = color;
+		
+		public void ChangeLabel(string newLabel) => label = newLabel;
 
-		public void ChangeTexture(Sprite sprite) {
-			texture = EditorUtility.CopyTexture(sprite);
-		}
+		public void OnClicked(Vector2Int pos) => Clicked?.Invoke(pos);
+		
+		public void OnScrolled(Vector2 delta) => Scrolled?.Invoke(delta);
+		
+		public void OnDragStart(Vector2Int pos) => DragStart?.Invoke(pos);
 
-		public void ChangeZoom(float zoom) {
-			this.zoom = zoom;
-		}
-
-		public void ChangeBackgroundColor(Color color) {
-			backgroundColor = color;
-		}
-
-		public void ChangeLabel(string label) {
-			this.label = label;
-		}
-
-		public void OnClicked(Vector2Int pos) {
-			Clicked?.Invoke(pos);
-		}
-
-		public void OnScrolled(Vector2 delta) {
-			Scrolled?.Invoke(delta);
-		}
+		public void OnDragEnd() => DragEnd?.Invoke();
 
 	}
 	
@@ -89,59 +94,98 @@ namespace Utilities.Editor {
 		private const float LabelHeight = 16f;
 		private const float Space = 8f;
 
-
+		private bool ScrollWheel => Event.current.type == EventType.ScrollWheel;
+		private bool MouseDown => Event.current.type == EventType.MouseDown;
+		private bool MouseUp => Event.current.type == EventType.MouseUp;
+		private bool Drag => Event.current.type == EventType.MouseDrag;
+		
+		private bool dragging = false;
+		private bool clicked = false;
+		
 		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
 			EditorGUI.BeginChangeCheck();
 			var preview = fieldInfo.GetValue(property.serializedObject.targetObject) as TexturePreview;
 			
 			bool hasLabel = !string.IsNullOrEmpty(preview.label);
-			
 
-			if (preview.texture != null) {
-				Rect rect = hasLabel ? EditorGUILayout.GetControlRect(false, preview.Height + LabelHeight*3) 
-					: EditorGUILayout.GetControlRect(false, preview.Height + LabelHeight);
-
-				float additionalSpace = 0;
-			
-				float previewRectX = GetRectX(rect, preview);
-				if (hasLabel) {
-					string newLabel = preview.label;
-					var style = new GUIStyle {fontSize = 20, fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleLeft};
-				
-					var labelRect = new Rect(previewRectX, rect.y, rect.width, LabelHeight);
-					EditorGUI.LabelField(labelRect, newLabel, style);
-					additionalSpace += (LabelHeight*2);
-				}
-			
-				var previewRect = new Rect(previewRectX, rect.position.y + additionalSpace , preview.Width, preview.Height);
-				if (previewRect.Contains(Event.current.mousePosition)) {
-					if (Event.current.type == EventType.MouseDown) {
-						var mouseToRectPosition = new Vector2
-						{
-							x = Event.current.mousePosition.x - previewRect.x,
-							y = Event.current.mousePosition.y - previewRect.y
-						};
-						var remappedPosition = new Vector2Int
-						{
-							x = Mathf.FloorToInt(mouseToRectPosition.x.Remap(0, preview.Width, 0, preview.texture.width)),
-							y = Mathf.FloorToInt(mouseToRectPosition.y.Remap(0, preview.Height, preview.texture.height, 0))
-						};
-						preview.OnClicked(remappedPosition);
-						Event.current.Use();
-					}
-					if (Event.current.type == EventType.ScrollWheel) {
-						preview.OnScrolled(Event.current.delta);
-						Event.current.Use();
-					}
-				}
-
-				EditorUtility.DrawBorders(previewRect, 2, Color.gray);
-				Color guiColor = GUI.color;
-				GUI.color = preview.Color;
-				EditorGUI.DrawTextureTransparent(previewRect, preview.texture);
-				GUI.color = guiColor;
+			if (preview.texture == null) {
+				EditorGUI.EndChangeCheck();
+				return;
 			}
+				
+			Rect rect = hasLabel 
+				? EditorGUILayout.GetControlRect(false, preview.Height + LabelHeight * 3) 
+				: EditorGUILayout.GetControlRect(false, preview.Height + LabelHeight);
+
+			float additionalSpace = 0;
+			
+			float previewRectX = GetRectX(rect, preview);
+			
+			if (hasLabel) {
+				string newLabel = preview.label;
+				var style = new GUIStyle
+				{
+					fontSize = 20, 
+					fontStyle = FontStyle.Bold, 
+					alignment = TextAnchor.MiddleLeft
+				};
+				
+				var labelRect = new Rect(previewRectX, rect.y, rect.width, LabelHeight);
+				EditorGUI.LabelField(labelRect, newLabel, style);
+				additionalSpace += (LabelHeight * 2);
+			}
+			
+			var previewRect = new Rect(previewRectX, rect.position.y + additionalSpace , preview.Width, preview.Height);
+			
+			if (previewRect.Contains(Event.current.mousePosition)) 
+				HandleInputs(preview, previewRect);
+			
+			EditorUtility.DrawOuterBorders(previewRect, 2, Color.gray);
+			Color guiColor = GUI.color;
+			GUI.color = preview.Color;
+			EditorGUI.DrawTextureTransparent(previewRect, preview.texture);
+			GUI.color = guiColor;
+			
 			EditorGUI.EndChangeCheck();
+		}
+		
+		private void HandleInputs(TexturePreview preview, Rect previewRect) {
+			if (MouseUp) {
+				clicked = false;
+				if (dragging) {
+					dragging = false;
+					preview.OnDragEnd();
+					Debug.Log("end drag");
+				}
+			}
+
+			if (MouseDown || Drag) {
+				var mouseToRectPosition = new Vector2
+				{
+					x = Event.current.mousePosition.x - previewRect.x,
+					y = Event.current.mousePosition.y - previewRect.y
+				};
+				var remappedPosition = new Vector2Int
+				{
+					x = Mathf.FloorToInt(mouseToRectPosition.x.Remap(0, preview.Width, 0, preview.texture.width)),
+					y = Mathf.FloorToInt(mouseToRectPosition.y.Remap(0, preview.Height, preview.texture.height, 0))
+				};
+				if (Drag && !dragging) {
+					Debug.Log("start drag");
+					preview.OnDragStart(remappedPosition);
+					dragging = true;
+				}
+
+				if (MouseDown && !clicked) {
+					clicked = true;
+					preview.OnClicked(remappedPosition);
+				}
+				Event.current.Use();
+			}
+			if (ScrollWheel) {
+				preview.OnScrolled(Event.current.delta);
+				Event.current.Use();
+			}
 		}
 		
 		private float GetRectX(Rect rect, TexturePreview preview) {
@@ -160,9 +204,6 @@ namespace Utilities.Editor {
 			}
 		}
 
-		public override bool CanCacheInspectorGUI(SerializedProperty property)
-		{
-			return false;
-		}
+		public override bool CanCacheInspectorGUI(SerializedProperty property) => false;
 	}
 }
