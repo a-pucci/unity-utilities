@@ -54,28 +54,49 @@ namespace Utilities {
 
 		#region Navigation
 
-		#region Verical
+		public static void SetNavigation(NavigationType type, IEnumerable<GameObject> list, bool loop = true) {
+			List<Button> buttons = list.Select(x => x.GetComponent<Button>()).ToList();
+			switch(type) {
+				case NavigationType.Horizontal: 
+					SetHorizontalNavigation(buttons, loop);
+					break;
+				case NavigationType.Vertical:
+					SetVerticalNavigation(buttons, loop);
+					break;
+			}
+		}
+
+		public static void SetNavigation<T>(NavigationType type, IEnumerable<T> list, bool loop = true) where T : MonoBehaviour {
+			List<Button> buttons = list.Select(x => x.GetComponent<Button>()).ToList();
+			switch(type) {
+				case NavigationType.Horizontal: 
+					SetHorizontalNavigation(buttons, loop);
+					break;
+				case NavigationType.Vertical:
+					SetVerticalNavigation(buttons, loop);
+					break;
+			}
+		}
+		
+		#region Vertical
 
 		public static void SetVerticalNavigation(List<Button> buttons, bool loop = true) {
+			
+			bool IsFirst(int index) => index == 0;
+			bool IsLast(int index) => index == buttons.Count - 1;
+
+			Button GetUp(int i) => IsFirst(i) ? loop ? buttons[buttons.Count - 1] : null : buttons[i - 1];
+			Button GetDown(int i) => IsLast(i) ? loop ? buttons[0] : null : buttons[i + 1];
+
 			for (int i = 0; i < buttons.Count; i++) {
 				var nav = new Navigation
 				{
 					mode = Navigation.Mode.Explicit,
-					selectOnUp = i == 0 ? loop ? buttons[buttons.Count - 1] : null : buttons[i - 1],
-					selectOnDown = i == buttons.Count - 1 ? loop ? buttons[0] : null : buttons[i + 1]
+					selectOnUp = GetUp(i),
+					selectOnDown = GetDown(i)
 				};
 				buttons[i].navigation = nav;
 			}
-		}
-
-		public static void SetVerticalNavigation(IEnumerable<GameObject> list, bool loop = true) {
-			List<Button> buttons = list.Select(x => x.GetComponent<Button>()).ToList();
-			SetVerticalNavigation(buttons, loop);
-		}
-
-		public static void SetVerticalNavigation<T>(IEnumerable<T> list, bool loop = true) where T : MonoBehaviour {
-			List<Button> buttons = list.Select(x => x.GetComponent<Button>()).ToList();
-			SetVerticalNavigation(buttons, loop);
 		}
 
 		#endregion
@@ -83,62 +104,63 @@ namespace Utilities {
 		#region Horizontal
 
 		public static void SetHorizontalNavigation(List<Button> buttons, bool loop = true) {
+			
+			bool IsFirst(int index) => index == 0;
+			bool IsLast(int index) => index == buttons.Count - 1;
+
+			Button GetLeft(int i) => IsFirst(i) ? loop ? buttons[buttons.Count - 1] : null : buttons[i - 1];
+			Button GetRight(int i) => IsLast(i) ? loop ? buttons[0] : null : buttons[i + 1];
+
 			for (int i = 0; i < buttons.Count; i++) {
 				var nav = new Navigation
 				{
 					mode = Navigation.Mode.Explicit,
-					selectOnLeft = i == 0 ? loop ? buttons[buttons.Count - 1] : null : buttons[i - 1],
-					selectOnRight = i == buttons.Count - 1 ? loop ? buttons[0] : null : buttons[i + 1]
+					selectOnLeft = GetLeft(i),
+					selectOnRight = GetRight(i)
 				};
 				buttons[i].navigation = nav;
 			}
-		}
-
-		public static void SetHorizontalNavigation(IEnumerable<GameObject> list, bool loop = true) {
-			List<Button> buttons = list.Select(x => x.GetComponent<Button>()).ToList();
-			SetHorizontalNavigation(buttons, loop);
-		}
-
-		public static void SetHorizontalNavigation<T>(IEnumerable<T> list, bool loop = true) where T : MonoBehaviour {
-			List<Button> buttons = list.Select(x => x.GetComponent<Button>()).ToList();
-			SetHorizontalNavigation(buttons, loop);
 		}
 
 		#endregion
 
 		#region Grid
 
-		public static void SetGridNavigations(List<Button> buttons, int gridColumns) {
-			for (int i = 0; i < buttons.Count; i++) {
-				var nav = new Navigation
-				{
-					mode = Navigation.Mode.Explicit
-				};
+		public static void SetGridNavigation(List<Button> buttons, int columns, bool loop = false) {
+			int count = buttons.Count;
+			int rows = count / columns;
+			int lastRowIndex = (rows - 1) * columns;
+		
+			bool IsFirstRow(int index) => index < columns;
+			bool IsLastRow(int index) => index >= count - columns;
+			bool IsFirstColumn(int index) => index % columns == 0;
+			bool IsLastColumn(int index) => index % columns == columns - 1;
 
-				if (i < buttons.Count - gridColumns && i + gridColumns < buttons.Count) 
-					nav.selectOnDown = buttons[i + gridColumns];
-				
-				if (i >= gridColumns) 
-					nav.selectOnUp = buttons[i - gridColumns];
-				
-				if (i % gridColumns != gridColumns - 1 && i + 1 < buttons.Count) 
-					nav.selectOnRight = buttons[i + 1];
-				
-				if (i % gridColumns != 0) 
-					nav.selectOnLeft = buttons[i - 1];
-				
-				buttons[i].navigation = nav;
+			Button GetUp(int i) => IsFirstRow(i) ? loop ? buttons[lastRowIndex + i] : null : buttons[i - columns];
+			Button GetDown(int i) => IsLastRow(i) ? loop ? buttons[i % columns] : null : buttons[i + columns];
+			Button GetLeft(int i) => IsFirstColumn(i) ? loop ? buttons[i + columns - 1] : null : buttons[i - 1]; 
+			Button GetRight(int i) => IsLastColumn(i) ? loop ? buttons[i - columns + 1] : null : buttons[i + 1];
+
+			for (int i = 0; i < buttons.Count; i++) {
+				buttons[i].navigation = new Navigation
+				{
+					mode = Navigation.Mode.Explicit,
+					selectOnUp = GetUp(i),
+					selectOnDown = GetDown(i),
+					selectOnLeft = GetLeft(i),
+					selectOnRight = GetRight(i)
+				};
 			}
 		}
 
-		public static void SetGridNavigations(IEnumerable<GameObject> list, int gridColumns) {
+		public static void SetGridNavigation(IEnumerable<GameObject> list, int gridColumns, bool loop = false) {
 			List<Button> buttons = list.Select(b => b.GetComponent<Button>()).ToList();
-			SetGridNavigations(buttons, gridColumns);
+			SetGridNavigation(buttons, gridColumns, loop);
 		}
 
-		public static void SetGridNavigations<T>(IEnumerable<T> list, int gridColumns) where T : MonoBehaviour {
+		public static void SetGridNavigation<T>(IEnumerable<T> list, int gridColumns, bool loop = false) where T : MonoBehaviour {
 			List<Button> buttons = list.Select(b => b.GetComponent<Button>()).ToList();
-			SetGridNavigations(buttons, gridColumns);
+			SetGridNavigation(buttons, gridColumns, loop);
 		}
 
 		#endregion
