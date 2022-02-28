@@ -1,4 +1,4 @@
-namespace Utilities {
+namespace Utilities.Extensions {
 	public enum RTColors {
 		Black,
 		Blue,
@@ -20,10 +20,5 @@ namespace Utilities {
 		Teal,
 		White,
 		Yellow
-	}
-	
-	public enum NavigationType {
-		Horizontal,
-		Vertical
 	}
 }

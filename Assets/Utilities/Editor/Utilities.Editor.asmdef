@@ -1,14 +1,16 @@
 {
     "name": "EditorUtilities",
+    "rootNamespace": "",
     "references": [
-        "Utilities"
+        "GUID:b02100a32937a324d90b2145ab912b57"
     ],
-    "optionalUnityReferences": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": []
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

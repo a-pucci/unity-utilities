@@ -61,7 +61,7 @@ namespace Utilities.Editor {
 			zoom = 1;
 		}
 		public TexturePreview(Sprite sprite, Anchor anchor = Anchor.Left, string label = null) {
-			texture = EditorUtility.CopyTexture(sprite);
+			texture = EditorUtilities.CopyTexture(sprite);
 			backgroundColor = Color.clear;
 			this.anchor = anchor;
 			this.label = label;
@@ -70,7 +70,7 @@ namespace Utilities.Editor {
 
 		public void ChangeTexture(ref Texture2D newTexture) => texture = newTexture;
 		
-		public void ChangeTexture(Sprite sprite) => texture = EditorUtility.CopyTexture(sprite);
+		public void ChangeTexture(Sprite sprite) => texture = EditorUtilities.CopyTexture(sprite);
 		
 		public void ChangeZoom(float newZoom) => zoom = newZoom;
 		
@@ -140,7 +140,7 @@ namespace Utilities.Editor {
 			if (previewRect.Contains(Event.current.mousePosition)) 
 				HandleInputs(preview, previewRect);
 			
-			EditorUtility.DrawOuterBorders(previewRect, 2, Color.gray);
+			EditorUtilities.DrawOuterBorders(previewRect, 2, Color.gray);
 			Color guiColor = GUI.color;
 			GUI.color = preview.Color;
 			EditorGUI.DrawTextureTransparent(previewRect, preview.texture);

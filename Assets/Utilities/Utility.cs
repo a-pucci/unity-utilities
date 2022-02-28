@@ -1,44 +1,47 @@
-using UnityEngine;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
+using Random = UnityEngine.Random;
 
 namespace Utilities {
 	public static class Utility {
-
-		public static T[] GetAllInstances<T>() where T : ScriptableObject {
-			string[] guids = AssetDatabase.FindAssets("t:" + typeof(T).Name);
-			var a = new T[guids.Length];
-			for (int i = 0; i < guids.Length; i++) {
-				string path = AssetDatabase.GUIDToAssetPath(guids[i]);
-				a[i] = AssetDatabase.LoadAssetAtPath<T>(path);
-			}
-			return a;
-		}
-		
+		///Random Weighted elements
+		///https://forum.unity.com/threads/random-numbers-with-a-weighted-chance.442190/
 		public static int GetRandomWeightedIndex(float[] weights) {
-			if (weights == null || weights.Length == 0) return -1;
+			if (weights == null || weights.Length == 0) {
+				return -1;
+			}
+			float totalWeight = 0;
 
-			float w;
-			float total = 0;
-			int i;
-			for (i = 0; i < weights.Length; i++) {
-				w = weights[i];
-				if (float.IsPositiveInfinity(w)) return i;
-				else if (w >= 0f && !float.IsNaN(w)) total += weights[i];
+			for (int i = 0; i < weights.Length; i++) {
+				if (float.IsPositiveInfinity(weights[i])) 
+					return i;
+				else if (weights[i] >= 0f && !float.IsNaN(weights[i])) 
+					totalWeight += weights[i];
 			}
 
-			float r = Random.value;
+			float randomPick = Random.value;
 			float s = 0f;
 
-			for (i = 0; i < weights.Length; i++) {
-				w = weights[i];
-				if (float.IsNaN(w) || w <= 0f) continue;
-
-				s += w / total;
-				if (s >= r) return i;
+			for (int i = 0; i < weights.Length; i++) {
+				float currentWeight = weights[i];
+				if (float.IsNaN(currentWeight) || currentWeight <= 0f) {
+					continue;
+				}
+				s += currentWeight / totalWeight;
+				if (s >= randomPick) {
+					return i;
+				}
 			}
 
 			return -1;
 		}
 		
+		/// Get all element names of th Enum
+		public static List<string> GetEnumNames<T>() {
+			return !typeof(T).IsEnum ? null : Enum.GetNames(typeof(T)).ToList();
+		}
+
 	}
 }

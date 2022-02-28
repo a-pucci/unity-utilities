@@ -193,6 +193,10 @@ namespace Utilities.Extensions {
 
 		public static bool IsInRange<T>(this IList<T> list, int index) => index >= 0 && index < list.Count;
 
+		/// Swap two elements
+		public static void Swap<T>(this IList<T> list, int indexA, int indexB) 
+			=> (list[indexA], list[indexB]) = (list[indexB], list[indexA]);
+
 		public static bool IsNullOrEmpty<T1, T2>(this Dictionary<T1, T2> dict) => dict == null || dict.Count == 0;
 
 		#endregion
@@ -284,48 +288,14 @@ namespace Utilities.Extensions {
 		#region Vector3
 
 		/// Todo TEST
-		public static Vector3 OppositeDirection(this Vector3 vector, Plane plane) {
-			return plane switch
-			{
-				Plane.XY => new Vector3(-vector.x, -vector.y, vector.z).normalized,
-				Plane.XZ => new Vector3(-vector.x, vector.y, -vector.z).normalized,
-				Plane.YZ => new Vector3(vector.x, -vector.y, -vector.z).normalized
-			};
+		public static Vector3 PerpendicularCW(this Vector3 vector, Vector3 dir) {
+			var c = Vector3.Cross(vector, dir);
+			return c;
 		}
 
 		/// Todo TEST
-		public static Vector3 PerpendicularCW(this Vector3 vector, Plane plane) {
-			return plane switch
-			{
-				Plane.XY => new Vector3(vector.y, -vector.x, 0),
-				Plane.XZ => new Vector3(vector.z, 0, -vector.x),
-				Plane.YZ => new Vector3(0, vector.z, -vector.y)
-			};
-		}
-
-		/// Todo TEST
-		public static Vector3 PerpendicularCCW(this Vector3 vector, Plane plane) {
-			return plane switch
-			{
-				Plane.XY => new Vector3(-vector.y, vector.x, 0),
-				Plane.XZ => new Vector3(-vector.z, 0, vector.x),
-				Plane.YZ => new Vector3(0, -vector.z, vector.y)
-			};
-		}
-
-		[Obsolete] // Todo Remove
-		public static Vector3 OppositeDirection(this Vector3 vector) {
-			return new Vector3(-vector.x, vector.y, -vector.z).normalized;
-		}
-
-		[Obsolete] // Todo Remove
-		public static Vector3 PerpendicularClockwise(this Vector3 vector) {
-			return new Vector3(vector.z, 0, -vector.x);
-		}
-
-		[Obsolete] // Todo Remove
-		public static Vector3 PerpendicularCounterClockwise(this Vector3 vector) {
-			return new Vector3(-vector.z, 0, vector.x);
+		public static Vector3 PerpendicularCCW(this Vector3 vector, Vector3 dir) {
+			return -Vector3.Cross(vector, dir);
 		}
 
 		public static Vector2 FlipX(this Vector2 vector) {

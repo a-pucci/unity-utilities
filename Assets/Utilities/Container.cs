@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Utilities.Editor;
 
 namespace Utilities {
 	public class Container<T> : ScriptableObject where T : ScriptableObject {
@@ -20,7 +21,7 @@ namespace Utilities {
 		
 #if UNITY_EDITOR
 
-	protected virtual void GetAll() => list = Utility.GetAllInstances<T>();
+	protected virtual void GetAll() => list = EditorUtilities.GetAllInstances<T>();
 
 #endif
 	}
