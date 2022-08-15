@@ -1,0 +1,14 @@
+{
+  "name": "com.apucci.utilities",
+  "displayName": "Unity Utilities",
+  "version": "0.0.1",
+  "unity": "2020.3",
+  "author": "A. Pucci",
+  "description": "Some Utilities for Unity Games",
+  "dependencies": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/a-pucci/unity-utilities.git"
+  }
+}

@@ -1,0 +1,18 @@
+{
+    "name": "AP.EditorUtilities",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b02100a32937a324d90b2145ab912b57"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
