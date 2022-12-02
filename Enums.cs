@@ -1,5 +1,7 @@
-namespace AP.Utilities {
-	public enum RTColors {
+namespace AP.Utilities
+{
+	public enum RTColors
+	{
 		Black,
 		Blue,
 		Brown,
@@ -21,8 +23,9 @@ namespace AP.Utilities {
 		White,
 		Yellow
 	}
-	
-	public enum NavigationType {
+
+	public enum NavigationType
+	{
 		Horizontal,
 		Vertical
 	}
