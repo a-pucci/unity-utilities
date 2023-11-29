@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -44,9 +44,6 @@ namespace AP.Utilities
 			return -1;
 		}
 
-		/// Get all element names of th Enum
-		public static List<string> GetEnumNames<T>() => !typeof(T).IsEnum ? null : Enum.GetNames(typeof(T)).ToList();
-
 		private static readonly Dictionary<float, WaitForSeconds> WaitsDictionary = new Dictionary<float, WaitForSeconds>();
 
 		public static WaitForSeconds GetWait(float time)
@@ -67,6 +64,24 @@ namespace AP.Utilities
 
 			RealtimeWaitsDictionary.Add(time, new WaitForSecondsRealtime(time));
 			return RealtimeWaitsDictionary[time];
+		}
+		
+		public static async Task WaitUntil(Func<bool> predicate)
+		{
+			int sleep = (int)(Time.deltaTime * 1000);
+			while (!predicate())
+			{
+				await Task.Delay(sleep);
+			}
+		}
+		
+		public static async Task WaitWhile(Func<bool> predicate)
+		{
+			int sleep = (int)(Time.deltaTime * 1000);
+			while (predicate())
+			{
+				await Task.Delay(sleep);
+			}
 		}
 	}
 }
