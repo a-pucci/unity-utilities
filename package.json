@@ -1,7 +1,7 @@
 {
   "name": "com.apucci.utilities",
   "displayName": "AP Utilities",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "A. Pucci",
   "description": "Some Utilities for Unity Games",
   "dependencies": {

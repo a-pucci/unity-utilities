@@ -7,9 +7,7 @@ namespace AP.Utilities
 	{
 		private class MeasureOperation : IDisposable
 		{
-			private readonly Stopwatch stopwatch;
-
-			public MeasureOperation() => stopwatch = Stopwatch.StartNew();
+			private readonly Stopwatch stopwatch = Stopwatch.StartNew();
 
 			public void Dispose()
 			{

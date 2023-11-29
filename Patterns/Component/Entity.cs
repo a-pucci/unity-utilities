@@ -6,20 +6,29 @@ namespace AP.Utilities.Patterns
 {
 	public abstract class Entity : MonoBehaviour
 	{
-		private readonly Dictionary<Type, EntityComponent> components = new Dictionary<Type, EntityComponent>();
-
-		public T Get<T>() where T : EntityComponent => components.TryGetValue(typeof(T), out EntityComponent value) ? value as T : null;
+		private Dictionary<Type, EntityComponent> components = new Dictionary<Type, EntityComponent>();
+		private bool initialized;
+		
+		public T Get<T>() where T : EntityComponent
+		{
+			if (!initialized) GetComponents();
+			return components.TryGetValue(typeof(T), out EntityComponent value) ? value as T : null;
+		}
 
 		protected virtual void Awake() => GetComponents();
 
 		private void GetComponents()
 		{
-			EntityComponent[] comps = GetComponentsInChildren<EntityComponent>();
-
-			foreach (EntityComponent component in comps)
+			if (initialized)
+				return;
+			
+			components = new Dictionary<Type, EntityComponent>();
+			EntityComponent[] parts = GetComponentsInChildren<EntityComponent>();
+			foreach (EntityComponent part in parts)
 			{
-				components.Add(component.GetType(), component);
+				components.Add(part.GetType(), part);
 			}
+			initialized = true;
 		}
 	}
 }

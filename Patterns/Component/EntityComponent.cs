@@ -8,6 +8,10 @@ namespace AP.Utilities.Patterns
 	{
 		protected T Entity { get; private set; }
 
-		protected virtual void Awake() => Entity = GetComponentInParent<T>();
+		protected virtual void Awake()
+		{
+			Entity = GetComponentInParent<T>();
+			Debug.Assert(Entity != null, $"No entity found of type {typeof(T)}", this);
+		}
 	}
 }
