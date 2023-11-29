@@ -6,9 +6,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
+using System.Reflection;
+using System.Text;
 #if UNITY_EDITOR
 using UnityEditor;
-using System.Reflection;
 #endif
 
 namespace AP.Utilities.Extensions
@@ -17,16 +18,45 @@ namespace AP.Utilities.Extensions
 	{
 		#region GameObject
 
-		public static void DestroyChildren(this GameObject obj)
+		public static void DestroyChildren(this GameObject obj) => DestroyChildren(obj.transform);
+
+		public static T GetOrAddComponent<T>(this GameObject obj) where T : Component => obj.TryGetComponent(out T oldComp) ? oldComp : obj.AddComponent<T>();
+
+		public static bool TryGetComponentInChildren<T>(this GameObject obj, out T component) where T : Component
 		{
+			if (obj.TryGetComponent(out component))
+				return true;
+
 			foreach (Transform child in obj.transform)
+			{
+				if (child.gameObject.TryGetComponentInChildren(out component))
+					return true;
+			}
+			return false;
+		}
+		
+		public static bool HasComponent<T>(this GameObject obj) => obj.TryGetComponent(out T _);
+		
+		#endregion
+		
+		#region Transform
+	
+		public static void DestroyChildren(this Transform obj)
+		{
+			foreach (Transform child in obj)
 			{
 				Object.Destroy(child.gameObject);
 			}
 		}
-
-		public static T GetOrAddComponent<T>(this GameObject obj) where T : Component => obj.TryGetComponent(out T oldComp) ? oldComp : obj.AddComponent<T>();
-
+	
+		public static void SetChildrenActive(this Transform obj, bool value)
+		{
+			foreach (Transform child in obj)
+			{
+				child.gameObject.SetActive(value);
+			}
+		}
+	
 		#endregion
 
 		#region Button
@@ -62,14 +92,14 @@ namespace AP.Utilities.Extensions
 
 		public static Coroutine ExecuteNextFrame(this MonoBehaviour mb, Action action)
 		{
-			IEnumerator CallNextFrame(Action a)
+			IEnumerator Wait(Action a)
 			{
 				yield return null;
 
 				a.Invoke();
 			}
 
-			return mb.StartCoroutine(CallNextFrame(action));
+			return mb.StartCoroutine(Wait(action));
 		}
 
 		public static Coroutine ExecuteAfterFrames(this MonoBehaviour mb, Action action, int frames)
@@ -159,6 +189,8 @@ namespace AP.Utilities.Extensions
 				list.Remove(element);
 			}
 		}
+		
+		public static void RemoveLast<T>(this List<T> list) => list.RemoveAt(list.Count - 1);
 
 		public static bool FindAndRemove<T>(this List<T> list, Predicate<T> match)
 		{
@@ -174,6 +206,13 @@ namespace AP.Utilities.Extensions
 			var l = new List<T>(list);
 			l.Remove(toIgnore);
 
+			return l.GetRandom();
+		}
+		
+		public static T GetRandom<T>(this IEnumerable<T> list, IEnumerable<T> toIgnore)
+		{
+			var l = new List<T>(list);
+			l.Remove(toIgnore);
 			return l.GetRandom();
 		}
 
@@ -222,12 +261,20 @@ namespace AP.Utilities.Extensions
 
 			return count;
 		}
+		
+		public static T[] GetSubArray<T>(this T[] array, int start, int length)
+		{
+			var newArr = new T[length];
+			for(int i = start; i < start+length; i++){
+				newArr[i-start] = array[i];
+			}
+			return newArr;
+		}
 
 		public static bool IsNullOrEmpty<T>(this IList<T> list) => list == null || list.Count == 0;
 
 		public static bool IsInRange<T>(this IList<T> list, int index) => index >= 0 && index < list.Count;
-
-		/// Swap two elements
+		
 		public static void Swap<T>(this IList<T> list, int indexA, int indexB) => (list[indexA], list[indexB]) = (list[indexB], list[indexA]);
 
 		public static bool IsNullOrEmpty<T1, T2>(this Dictionary<T1, T2> dict) => dict == null || dict.Count == 0;
@@ -257,6 +304,24 @@ namespace AP.Utilities.Extensions
 			}
 
 			return string.Join(" ", sA);
+		}
+		
+		public static string ToCamelCase(this string s, char separator)
+		{
+			if (string.IsNullOrEmpty(s))
+				return string.Empty;
+
+			string[] sA = s.Split(separator);
+
+			if (sA.Length > 1)
+			{
+				for (int i = 1; i < sA.Length; i++)
+				{
+					sA[i] = sA[i].UppercaseFirst();
+				}
+			}
+
+			return string.Join("", sA);
 		}
 
 		public static string SnakeCaseToUpperCase(this string s)
@@ -290,8 +355,60 @@ namespace AP.Utilities.Extensions
 
 			return s.Replace(" ", "");
 		}
+		
+		public static string ToTitleCase(this string str)
+		{
+			var stringBuilder = new StringBuilder();
+			if (str.IsNullOrEmpty())
+				return string.Empty;
 
-		public static bool IsNullOrEmpty(this string text) => string.IsNullOrEmpty(text);
+			byte lastCharType = 1; // 0 -> lowercase, 1 -> _ (underscore), 2 -> number, 3 -> uppercase
+			int index = 0;
+			if (str.Length > 1 && str[1] == '_')
+				index = 2;
+
+			stringBuilder.Length = 0;
+			for (; index < str.Length; index++)
+			{
+				char ch = str[index];
+				if (char.IsUpper(ch))
+				{
+					if ((lastCharType < 2 || (str.Length > index + 1 && char.IsLower(str[index + 1]))) && stringBuilder.Length > 0)
+						stringBuilder.Append(' ');
+
+					stringBuilder.Append(ch);
+					lastCharType = 3;
+				}
+				else if (ch == '_')
+					lastCharType = 1;
+				else if (char.IsNumber(ch))
+				{
+					if (lastCharType != 2 && stringBuilder.Length > 0)
+						stringBuilder.Append(' ');
+
+					stringBuilder.Append(ch);
+					lastCharType = 2;
+				}
+				else
+				{
+					if (lastCharType is 1 or 2)
+					{
+						if (stringBuilder.Length > 0)
+							stringBuilder.Append(' ');
+
+						stringBuilder.Append(char.ToUpper(ch));
+					}
+					else
+						stringBuilder.Append(ch);
+
+					lastCharType = 0;
+				}
+			}
+
+			return stringBuilder.Length == 0 ? str : stringBuilder.ToString();
+		}
+
+		public static bool IsNullOrEmpty(this string text) => string.IsNullOrWhiteSpace(text);
 
 		public static string SubstringByWords(this string text, int i, char separator = ' ')
 		{
@@ -328,7 +445,13 @@ namespace AP.Utilities.Extensions
 			return t[t.Length - 1];
 		}
 
-		public static T ToEnum<T>(this string value) => (T)Enum.Parse(typeof(T), value, true);
+		public static T ToEnum<T>(this string value)
+		{
+			if (!typeof(T).IsEnum)
+				throw new ArgumentException();
+			
+			return (T)Enum.Parse(typeof(T), value, true);
+		}
 
 		public static string RTBold(this string text) => $"<b>{text}</b>";
 
@@ -341,12 +464,7 @@ namespace AP.Utilities.Extensions
 		#region Vector3
 
 		/// Todo TEST
-		public static Vector3 PerpendicularCW(this Vector3 vector, Vector3 dir)
-		{
-			Vector3 c = Vector3.Cross(vector, dir);
-
-			return c;
-		}
+		public static Vector3 PerpendicularCW(this Vector3 vector, Vector3 dir) => Vector3.Cross(vector, dir);
 
 		/// Todo TEST
 		public static Vector3 PerpendicularCCW(this Vector3 vector, Vector3 dir) => -Vector3.Cross(vector, dir);
@@ -360,6 +478,16 @@ namespace AP.Utilities.Extensions
 		public static Vector3 FlipY(this Vector3 vector) => new Vector3(vector.x, -vector.y, vector.z);
 
 		public static Vector3 FlipZ(this Vector3 vector) => new Vector3(vector.x, vector.y, -vector.z);
+		
+		public static Vector2 WithX(this Vector2 vector, float x) => new Vector2(x, vector.y);
+
+		public static Vector2 WithY(this Vector2 vector, float y) => new Vector2(vector.x, y);
+	
+		public static Vector3 WithX(this Vector3 vector, float x) => new Vector3(x, vector.y, vector.z);
+
+		public static Vector3 WithY(this Vector3 vector, float y) => new Vector3(vector.x, y, vector.z);
+
+		public static Vector3 WithZ(this Vector3 vector, float z) => new Vector3(vector.x, vector.y, z);
 
 		#endregion
 
@@ -395,6 +523,16 @@ namespace AP.Utilities.Extensions
 		}
 
 		#endregion
+		
+		#region UInt
+		
+		public static bool IsInRange(this uint value, uint min, uint max, bool includeLimits = true)
+		{
+			if (includeLimits) return min <= value && value <= max;
+			else return min < value && value < max;
+		}
+	
+		#endregion
 
 		#region Float
 
@@ -414,17 +552,37 @@ namespace AP.Utilities.Extensions
 
 		#region Enum
 
-		public static string GetEnumName<T>(this T e)
+		public static List<string> GetEnumNames<T>(this T e)
+		{
+			if (!typeof(T).IsEnum)
+				throw new ArgumentException("Not an Enum type");
+
+			return Enum.GetNames(typeof(T)).ToList();
+		}
+		
+		public static List<T> GetEnumValues<T>(this T e)
 		{
 			if (!e.GetType().IsEnum)
 				throw new ArgumentException("Not an Enum type");
-
-			return Enum.GetName(typeof(T), e);
-		}
+		
+			return Enum.GetValues(typeof(T)).Cast<T>().ToList();
+		} 
 
 		#endregion
 
 		#region Type
+		
+		public static T GetFieldValue<T>(this object obj, string name) {
+			const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+			FieldInfo field = obj.GetType().GetField(name, bindingFlags);
+			return (T)field?.GetValue(obj);
+		}
+        
+		public static void SetFieldValue(this object obj, string name, object value) {
+			const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+			FieldInfo field = obj.GetType().GetField(name, bindingFlags);
+			field?.SetValue(obj, value);
+		}
 
 #if UNITY_EDITOR
 
@@ -546,6 +704,79 @@ namespace AP.Utilities.Extensions
 			rect.localScale = Vector3.one;
 		}
 
+		#endregion
+		
+		#region Camera
+	
+		public static bool ScreenPointToPlane(this Camera camera, Vector3 point, Plane plane, out Vector3 hitPoint)
+		{
+			Ray ray = camera.ScreenPointToRay(point);
+			return RayToPlane(plane, out hitPoint, ray);
+		}
+	
+		public static bool CameraCenterToPlane(this Camera camera, Plane plane, out Vector3 hitPoint)
+		{
+			Transform cameraTransf = camera.gameObject.transform;
+			var ray = new Ray(cameraTransf.position, cameraTransf.forward);
+			return RayToPlane(plane, out hitPoint, ray);
+		}
+
+		private static bool RayToPlane(Plane plane, out Vector3 hitPoint, Ray ray)
+		{
+			if (plane.Raycast(ray, out float hitDist))
+			{
+				// check for the intersection point between ray and plane
+				hitPoint = ray.GetPoint(hitDist);
+				return true;
+			}
+			if (hitDist < -1.0f)
+			{
+				// when point is "behind" plane (hitdist != zero, fe for far away orthographic camera)
+				// simply switch sign https://docs.unity3d.com/ScriptReference/Plane.Raycast.html
+				hitPoint = ray.GetPoint(-hitDist);
+				return true;
+			}
+			// both are parallel or plane is behind camera so write a log and return zero vector
+			hitPoint = Vector3.zero;
+			return false;
+		}
+
+		#endregion
+		
+		#region AnimationCurve
+	
+		public static float GetValueRatio(this AnimationCurve c, float value)
+		{
+			Keyframe minFrame = c.keys[^1];
+			Keyframe maxFrame = c.keys[0];
+		
+			if (value <= minFrame.value)
+				return minFrame.time;
+			else if (value >= maxFrame.value)
+				return maxFrame.time;
+		
+			float min = 0;
+			float max = 1;
+			const float epsilon = 0.01f;
+		
+			while (min <= max)
+			{
+				float mid = (min + max) / 2;
+				float lowMid = c.Evaluate(mid - epsilon);
+				float highMid = c.Evaluate(mid + epsilon);
+			
+				if ((value <= lowMid && value >= highMid))
+					return mid;
+			
+				float midVal = c.Evaluate(mid);
+				if (value > midVal)
+					max = mid - epsilon;
+				else
+					min = mid + epsilon;
+			}
+			return 0;
+		}
+	
 		#endregion
 	}
 }
