@@ -83,5 +83,58 @@ namespace AP.Utilities
 				await Task.Delay(sleep);
 			}
 		}
+
+   		public static Bounds CalculateBounds(GameObject go)
+    	{
+       	 	var b = new Bounds(go.transform.position, Vector3.zero);
+        	Renderer[] rList = go.GetComponentsInChildren<Renderer>();
+        	foreach (Renderer renderer in rList)
+            	b.Encapsulate(renderer.bounds);
+
+        	return b;
+    	}
+
+    	public static short EncodeDouble(double value)
+    	{
+        	// 52.1 = 521 * 10 ^ -1 => 0x1521
+        	// 1.25 = 125 * 10 ^ -2 => 0x2125
+        	// range from 0.0000000000000001 (0xf001) to 999 (0x0999)
+
+        	int cnt = 0;
+        	while (value != Math.Floor(value))
+        	{
+            	value *= 10.0;
+            	cnt++;
+        	}
+        	return (short)((cnt << 12) + (int)value);
+    	}
+
+    	public static double DecodeDouble(short value)
+    	{
+        	int cnt = value >> 12;
+        	double result = value & 0xfff;
+        	while (cnt > 0)
+        	{
+            	result /= 10.0;
+            	cnt--;
+        	}
+        	return result;
+    	}
+
+    	/// Returns a sine smoothed value 0-1
+    	public static float SmoothProgress(float progress)
+    	{
+        	progress = Mathf.Clamp01(progress);
+        	float halfPI = Mathf.PI / 2;
+        	// maps the progress between -PI/2 to PI/2
+        	progress = Mathf.Lerp(-halfPI, halfPI, progress);
+
+        	// returns value between -1 and 1
+        	progress = Mathf.Sin(progress);
+
+        	// scale the sin value between 0 and 1
+        	progress = (progress / 2) + 0.5f;
+        	return progress;
+    	}
 	}
 }
