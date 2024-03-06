@@ -704,6 +704,25 @@ namespace AP.Utilities.Extensions
 			rect.localScale = Vector3.one;
 		}
 
+	  	public static void ScaleToContainText(this RectTransform rectTransform, TMP_Text text, Vector2 widthRange, Vector2 additionalOffset, out float newWidth, out float newHeight, bool isWidthToSet = true, bool isHeightToSet = true) {
+	    	Vector2 preferredTextSize = text.GetPreferredValues(text.text);
+	    	newWidth = Mathf.Clamp(preferredTextSize.x + text.margin.x + text.margin.z, widthRange.x, widthRange.y) + additionalOffset.x;
+	    	rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, newWidth);
+	    	text.ForceMeshUpdate();
+	    	Vector2 renderedValues = text.GetRenderedValues(true);
+	    	newWidth = Mathf.Max(renderedValues.x + text.margin.x + text.margin.z, widthRange.x) + additionalOffset.x;
+	    	newHeight = renderedValues.y + text.margin.y + text.margin.w + additionalOffset.y;
+		    if (isWidthToSet) {
+				rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, newWidth);
+		    }
+		    if (isHeightToSet) {
+				rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, newHeight);
+		    }
+		    // force update			
+		    rectTransform.ForceUpdateRectTransforms();
+	    }
+
+
 		#endregion
 		
 		#region Camera
