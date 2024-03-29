@@ -8,6 +8,7 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 using System.Reflection;
 using System.Text;
+using TMPro;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
