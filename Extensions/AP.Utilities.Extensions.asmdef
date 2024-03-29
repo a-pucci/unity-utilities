@@ -1,7 +1,9 @@
 {
     "name": "AP.Utilities.Extensions",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "Unity.TextMeshPro"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
