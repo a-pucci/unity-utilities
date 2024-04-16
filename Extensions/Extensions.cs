@@ -798,5 +798,47 @@ namespace AP.Utilities.Extensions
 		}
 	
 		#endregion
+
+		private class WaitTask : IEnumerator
+		{
+			private IAsyncResult AsyncResult { get; }
+	
+			public object Current { get; } = new();
+	
+			public WaitTask(IAsyncResult asyncResult) => AsyncResult = asyncResult;
+	
+			public bool MoveNext() => !AsyncResult.IsCompleted;
+	
+			public void Reset() => throw new NotSupportedException();
+		}
+  
+	  	public static IEnumerator ToCoroutine<T>(this Task<T> future, Action<T> continuation = null)
+		{
+			if (future == null) throw new ArgumentNullException(nameof(future));
+			yield return new WaitTask(future);
+			continuation?.Invoke(future.Result);
+		}
+	
+		public static IEnumerator ToCoroutine(this Task future, Action continuation = null)
+		{
+			if (future == null) throw new ArgumentNullException(nameof(future));
+			yield return new WaitTask(future);
+			continuation?.Invoke();
+		}
+	    
+		public static Task ToTask(this IEnumerator coroutine, MonoBehaviour mb)
+		{
+			var tcs = new TaskCompletionSource<object>();
+	
+			mb.StartCoroutine(WaitForCoroutineInternal());
+	
+			return tcs.Task;
+	
+			IEnumerator WaitForCoroutineInternal()
+			{
+				yield return mb.StartCoroutine(coroutine);
+				tcs.SetResult(null);
+			}
+		}
 	}
 }
