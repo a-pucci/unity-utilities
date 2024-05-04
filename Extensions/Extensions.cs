@@ -8,6 +8,7 @@ using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using TMPro;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -799,6 +800,8 @@ namespace AP.Utilities.Extensions
 	
 		#endregion
 
+		#region Async
+		
 		private class WaitTask : IEnumerator
 		{
 			private IAsyncResult AsyncResult { get; }
@@ -812,17 +815,17 @@ namespace AP.Utilities.Extensions
 			public void Reset() => throw new NotSupportedException();
 		}
   
-	  	public static IEnumerator ToCoroutine<T>(this Task<T> future, Action<T> continuation = null)
+	  	public static IEnumerator ToCoroutine<T>(this Task<T> task, Action<T> continuation = null)
 		{
-			if (future == null) throw new ArgumentNullException(nameof(future));
-			yield return new WaitTask(future);
-			continuation?.Invoke(future.Result);
+			if (task == null) throw new ArgumentNullException(nameof(task));
+			yield return new WaitTask(task);
+			continuation?.Invoke(task.Result);
 		}
 	
-		public static IEnumerator ToCoroutine(this Task future, Action continuation = null)
+		public static IEnumerator ToCoroutine(this Task task, Action continuation = null)
 		{
-			if (future == null) throw new ArgumentNullException(nameof(future));
-			yield return new WaitTask(future);
+			if (task == null) throw new ArgumentNullException(nameof(task));
+			yield return new WaitTask(task);
 			continuation?.Invoke();
 		}
 	    
@@ -840,5 +843,7 @@ namespace AP.Utilities.Extensions
 				tcs.SetResult(null);
 			}
 		}
+		
+		#endregion
 	}
 }
