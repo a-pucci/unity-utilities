@@ -1,6 +1,8 @@
 using System;
-using AP.Utilities.Editor;
 using UnityEngine;
+#if UNITY_EDITOR
+using AP.Utilities.Editor;
+#endif
 
 namespace AP.Utilities
 {
@@ -16,9 +18,7 @@ namespace AP.Utilities
 		public T GetItem(string itemName) => Array.Find(list, c => c.name == itemName);
 
 #if UNITY_EDITOR
-
 		protected virtual void GetAll() => list = EditorUtilities.GetAllInstances<T>();
-
 #endif
 	}
 }
