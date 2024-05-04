@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using AP.Utilities.Patterns;
 using NUnit.Framework;
+using UnityEngine;
+using Event = AP.Utilities.Patterns.Event;
 
 public class EventManagerTests
 {

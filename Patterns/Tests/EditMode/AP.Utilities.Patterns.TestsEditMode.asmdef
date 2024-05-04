@@ -1,5 +1,5 @@
 {
-    "name": "AP.Utilities.Patterns.Tests",
+    "name": "AP.Utilities.Patterns.TestsEditMode",
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
