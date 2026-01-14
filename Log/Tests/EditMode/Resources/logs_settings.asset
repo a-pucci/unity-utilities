@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 685f9ba4a3b344d3887c47e4778aafe1, type: 3}
+  m_Name: logs_settings
+  m_EditorClassIdentifier: 
+  logLevel: 0
+  enableLogs: 0
+  loggers:
+  - typeName: AP.Logging.TestLogger3
+    assemblyName: AP.Log.TestsEditMode
+    isEnabled: 1
+  - typeName: AP.Logging.TestLogger6
+    assemblyName: AP.Log.TestsEditMode
+    isEnabled: 1
+  - typeName: AP.Logging.LogTests+TestLogger1
+    assemblyName: AP.Log.TestsEditMode
+    isEnabled: 1
+  - typeName: AP.Logging.LogTests+TestLogger2
+    assemblyName: AP.Log.TestsEditMode
+    isEnabled: 1
+  - typeName: AP.Logging.TestLogger3+TestLogger4
+    assemblyName: AP.Log.TestsEditMode
+    isEnabled: 1
+  - typeName: AP.Logging.TestLogger3+TestLogger6
+    assemblyName: AP.Log.TestsEditMode
+    isEnabled: 1
+  - typeName: AP.Logging.TestLogger3+TestLogger4+TestLogger5
+    assemblyName: AP.Log.TestsEditMode
+    isEnabled: 1
