@@ -18,7 +18,7 @@ namespace AP.Utilities
 		public T GetItem(string itemName) => Array.Find(list, c => c.name == itemName);
 
 #if UNITY_EDITOR
-		protected virtual void GetAll() => list = EditorUtilities.GetAllInstances<T>();
+		protected virtual void GetAll() => list = EditorUtilities.GetAllScriptable<T>();
 #endif
 	}
 }

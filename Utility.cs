@@ -44,6 +44,9 @@ namespace AP.Utilities
 			return -1;
 		}
 
+		
+		/* TODO: fix 
+		
 		private static readonly Dictionary<float, WaitForSeconds> WaitsDictionary = new Dictionary<float, WaitForSeconds>();
 
 		public static WaitForSeconds GetWait(float time)
@@ -65,6 +68,7 @@ namespace AP.Utilities
 			RealtimeWaitsDictionary.Add(time, new WaitForSecondsRealtime(time));
 			return RealtimeWaitsDictionary[time];
 		}
+		*/
 		
 		public static async Task WaitUntil(Func<bool> predicate)
 		{
@@ -136,5 +140,9 @@ namespace AP.Utilities
         	progress = (progress / 2) + 0.5f;
         	return progress;
     	}
+	    
+	    private static readonly int FixedFrameDelay = (int)(Time.fixedDeltaTime * 1000);
+
+	    public static async Task TaskYield() => await Task.Delay(FixedFrameDelay);
 	}
 }

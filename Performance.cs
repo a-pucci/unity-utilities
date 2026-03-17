@@ -5,16 +5,19 @@ namespace AP.Utilities
 {
 	public static class Performance
 	{
-		public static IDisposable MeasureMethod() => new Method();
+		public static IDisposable StartMeasure(string methodName = "") => new MethodMeasure(methodName);
 
-		private class Method : IDisposable
+		private class MethodMeasure : IDisposable
 		{
 			private readonly Stopwatch stopwatch = Stopwatch.StartNew();
+			private readonly string methodName;
+
+			public MethodMeasure(string methodName = "") => this.methodName = methodName;
 
 			public void Dispose()
 			{
 				stopwatch.Stop();
-				UnityEngine.Debug.Log($"Operation took {stopwatch.ElapsedMilliseconds} ms");
+				UnityEngine.Debug.Log($"{(methodName == "" ? "Operation" : methodName)} took {stopwatch.ElapsedMilliseconds} ms");
 			}
 		}
 	}
