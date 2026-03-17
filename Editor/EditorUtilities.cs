@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -12,7 +13,7 @@ namespace AP.Utilities.Editor
 		///  Retrieve all ScriptableObjects of a Type
 		/// </summary>
 		/// <typeparam name="T">ScriptableObject</typeparam>
-		public static T[] GetAllInstances<T>() where T : ScriptableObject
+		public static T[] GetAllScriptable<T>() where T : ScriptableObject
 		{
 			string[] guids = AssetDatabase.FindAssets("t:" + typeof(T).Name);
 			var a = new T[guids.Length];
@@ -24,6 +25,24 @@ namespace AP.Utilities.Editor
 			}
 
 			return a;
+		}
+		
+		/// <summary>
+		///  Retrieve all Prefabs with a Type in root object
+		/// </summary>
+		/// <typeparam name="T">Component</typeparam>
+		public static T[] GetAllPrefabs<T>() where T : Component
+		{
+			string[] guids = AssetDatabase.FindAssets("t:Prefab");
+			var assets = new List<T>();
+			for (int i = 0; i < guids.Length; i++)
+			{
+				string path = AssetDatabase.GUIDToAssetPath(guids[i]);
+				var asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+				if (asset.TryGetComponent(out T comp))
+					assets.Add(comp);
+			}
+			return assets.ToArray();
 		}
 
 		/// <summary>
