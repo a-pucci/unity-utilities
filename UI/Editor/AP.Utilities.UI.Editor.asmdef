@@ -1,0 +1,6 @@
+{
+  "name": "AP.Utilities.UI.Editor",
+    "references": [
+        "AP.Utilities.UI"
+    ]
+}
